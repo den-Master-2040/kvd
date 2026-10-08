@@ -1,42 +1,17 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"log"
 	"net"
+
+	"github.com/den-Master-2040/kvd/internal/server"
 )
 
 func main() {
-
 	listener, err := net.Listen("tcp", ":6380")
-
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal(err)
 	}
-	defer listener.Close()
-	fmt.Println("Server is listening...")
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("Client connected")
-		go handle(conn)
-
-	}
-}
-func handle(conn net.Conn) {
-	defer conn.Close()
-	r := bufio.NewReader(conn)
-	for {
-		msg, err := r.ReadString('\n')
-		if err != nil {
-			fmt.Println("read error:", err)
-			return
-		}
-		fmt.Print(msg)
-		conn.Write([]byte("+PONG\r\n"))
-	}
+	log.Println("listening on", listener.Addr())
+	log.Fatal(server.Serve(listener))
 }
