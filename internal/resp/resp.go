@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 	"strconv"
-	"strings"
+	"bytes"
 )
 
 const (
@@ -17,14 +17,18 @@ var ErrProtocol = errors.New("resp: protocol error")
 
 // readHeader читает строку вида "*3\r\n" или "$5\r\n" и возвращает число.
 func readHeader(r *bufio.Reader, prefix byte) (int, error) {
-	line, err := r.ReadString('\n')
+	line, err := r.ReadSlice('\n')//не ReadLine, чтобы остановится когда накопится слишком много символов (>4096) в хедере
 	if err != nil {
 		return 0, err
 	}
-	if len(line) < 4 || line[0] != prefix || !strings.HasSuffix(line, "\r\n") {
+	if len(line) < 4 || line[0] != prefix || !bytes.HasSuffix(line,[]byte("\r\n")) {
 		return 0, ErrProtocol
 	}
-	n, err := strconv.Atoi(line[1 : len(line)-2])
+	if line[1] < 0x30 || line[1] > 0x39 {
+		return 0, ErrProtocol
+	}
+
+	n, err := strconv.Atoi(string(line[1:len(line)-2]))
 	if err != nil || n < 0 {
 		return 0, ErrProtocol
 	}
