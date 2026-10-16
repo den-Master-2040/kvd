@@ -73,8 +73,10 @@ func handle(conn net.Conn, st *store.Store) {
 			resp.WriteError(w, "unknown command '"+string(args[0])+"'")
 		}
 
-		if err := w.Flush(); err != nil {
-			return // клиент отвалился, писать некуда
+		if r.Buffered() == 0 {
+			if err := w.Flush(); err != nil {
+				return
+			}
 		}
 	}
 }
