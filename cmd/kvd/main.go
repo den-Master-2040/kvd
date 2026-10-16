@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/den-Master-2040/kvd/internal/server"
+	"github.com/den-Master-2040/kvd/internal/store"
 )
 
 func main() {
@@ -13,5 +14,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("listening on", listener.Addr())
-	log.Fatal(server.Serve(listener))
+	st := store.New()
+	log.Fatal(server.Serve(listener, st))
 }
