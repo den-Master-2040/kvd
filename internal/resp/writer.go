@@ -13,7 +13,8 @@ func WriteSimple(w *bufio.Writer, b string) error {
 }
 
 func WriteError(w *bufio.Writer, b string) error {
-	w.WriteString("-ERR " + b)
+	w.WriteString("-ERR ")
+	w.WriteString(b)
 	_, err := w.WriteString("\r\n")
 	return err
 }
